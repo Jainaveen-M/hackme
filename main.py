@@ -1,7 +1,5 @@
 from crypt import methods
-import json
-import pathlib
-import sys
+
 from flask import Flask, jsonify, request
 from numpy import deg2rad, rec
 
@@ -91,10 +89,18 @@ def insertCustomer():
 @app.route('/getcustomer/<id>')
 def getCustomerById(id):
     global engine
-    query = f"select * from customer where ctid = {id};"
-    result = engine.execute(query)
-    id = [row[0] for row in result]
-    return jsonify({"message":result})
+    query = text("select * from customer where id = :id;")
+    result = engine.execute(query,{"id":id})
+    data=[]
+    
+    for record in result:
+        data.append({
+            "id":record.id,
+            "name":record.name,
+            "email":record.email,
+            "nationality":record.nationality
+        })
+    return jsonify({"message":data})
     
 
 # MODELS
