@@ -86,13 +86,29 @@ def insertCustomer():
     engine.execute(query,data)
     return jsonify({"result":"customer insert successfully"})
 
+# @app.route('/getcustomer/<id>')
+# def getCustomerById(id):
+#     global engine
+#     query = text("select * from customer where id > :id;")
+#     result = engine.execute(query,{"id":id})
+#     print("===== result ==== {}".format(id))
+#     data=[]
+#     for record in result:
+#         data.append({
+#             "id":record.id,
+#             "name":record.name,
+#             "email":record.email,
+#             "nationality":record.nationality
+#         })
+#     return jsonify({"user_details":data})
+
 @app.route('/getcustomer/<id>')
 def getCustomerById(id):
     global engine
-    query = text("select * from customer where id = :id;")
-    result = engine.execute(query,{"id":id})
+    query = f"select * from customer where id = {id};"
+    print("====== queryyy =====",query)
+    result = engine.execute(query)
     data=[]
-    
     for record in result:
         data.append({
             "id":record.id,
@@ -100,8 +116,26 @@ def getCustomerById(id):
             "email":record.email,
             "nationality":record.nationality
         })
-    return jsonify({"message":data})
-    
+    if len(data)==0:
+        query = "select * from customer where id = 1;"
+        print("====== queryyy =====",query)
+        result = engine.execute(query)
+        for record in result:
+            data.append({
+                "id":record.id,
+                "name":record.name,
+                "email":record.email,
+                "nationality":record.nationality
+            })     
+    return jsonify({"user_details":data})
+
+@app.route('/delete/<id>',methods=['POST'])
+def deleteCustomer(id):
+    global engine
+    # query = text("delete from customer where id = :id;")
+    query = f"delete from customer where id = {id};"
+    engine.execute(query)
+    return jsonify({"message":"customer deleted successfully"})
 
 # MODELS
 class Customer(Base):
